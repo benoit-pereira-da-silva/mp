@@ -55,18 +55,24 @@ class DetectShotsCommand: CommandBase {
             if let inputFile: String = inputFile.value,
                 let outputFile: String = outputFile.value{
 
-                guard let movieURL:URL = URL(string: inputFile) else{
-                    print("Invalid movie URL \(inputFile)")
-                    exit(EX__BASE)
+                let movieURL:URL
+                if FileManager.default.fileExists(atPath: inputFile){
+                    movieURL = URL(fileURLWithPath: inputFile)
+                }else{
+                    guard let url:URL = URL(string: inputFile) else{
+                        print("Invalid movie URL \(inputFile)")
+                        exit(EX__BASE)
+                    }
+                    movieURL = url
                 }
                 print("Processing \(movieURL) -> \(outputFile)")
 
                 let starts = startsAt.value ?? 0
-                let endsTime:CMTime = endsAt.value?.toCMTime() ?? Double.infinity.toCMTime()
+                let endsTime:CMTime? = endsAt.value?.toCMTime()
                 let startTime:CMTime = starts.toCMTime()
                 VideoMetadataExtractor.extractMetadataFromMovieAtURL(movieURL, success: { (origin, fps, duration, width:Float, height:Float,url:URL) in
                     do{
-                        self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime, fps: fps, origin: origin ?? 0 )
+                        self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime ?? duration.toCMTime(), fps: fps, origin: origin ?? 0 )
                         if let threshold = threshold.value{
                             if threshold > 0 && threshold <= 255{
                                 self.detector?.differenceThreshold = threshold

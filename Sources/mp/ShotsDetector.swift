@@ -180,6 +180,7 @@ class ShotsDetector{
             self._nextBunch()
         }
 
+        self.progress.totalUnitCount = 1
         self.progress.completedUnitCount += 1
         let d = NSLocalizedString("Number of detected Shots: ", comment: "Number of detected Shots: ")
         let message = "\(d)\((self._shots.count)) | \(self.progress.completedUnitCount) / \( self.progress.totalUnitCount) \(self.progress.completedUnitCount * 100 / self.progress.totalUnitCount )%"
