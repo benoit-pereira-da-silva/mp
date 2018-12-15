@@ -27,7 +27,7 @@ public class VideoFrameGenerator{
         case high
     }
     
-    var priority:VideoFrameGenerator.Priority = Priority.low
+    var priority:VideoFrameGenerator.Priority = Priority.high
     
     func cancel(){}
     
