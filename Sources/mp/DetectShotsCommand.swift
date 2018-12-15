@@ -71,6 +71,16 @@ class DetectShotsCommand: CommandBase {
                 let endsTime:CMTime? = endsAt.value?.toCMTime()
                 let startTime:CMTime = starts.toCMTime()
                 VideoMetadataExtractor.extractMetadataFromMovieAtURL(movieURL, success: { (origin, fps, duration, width:Float, height:Float,url:URL) in
+
+                    print("Processing video: \(url) ")
+                    print("Fps: \(fps)")
+                    print("Size: \(Int(width))/\(Int(height))")
+                    print("Duration: \(duration.stringMMSS)")
+                    if let origin:Double = origin{
+                        print("Origin: \(origin.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
+                    }else{
+                        print("Origin: \(0.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
+                    }
                     do{
                         self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime ?? duration.toCMTime(), fps: fps, origin: origin ?? 0 )
                         if let threshold = threshold.value{

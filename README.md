@@ -13,7 +13,7 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 # How to install *mp*
 
 1. Move to the `mp/` folder.
-2. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
+2. Build the release :  `cd `
 3. Copy the executable to the bin path: `cp -f .build/release/mp  /usr/local/bin/`
 
 
