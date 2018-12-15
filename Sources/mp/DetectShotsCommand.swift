@@ -17,7 +17,7 @@ class DetectShotsCommand: CommandBase {
     var detector:ShotsDetector?
     var movie:AVMovie?
 
-/*
+    /*
      Usage: mp detect-shots [options]
      -i, --input-file:
      The media file url or path
@@ -29,18 +29,17 @@ class DetectShotsCommand: CommandBase {
      The optional ends time stamp in seconds (double)
      -t, --threshold:
      The optional detection threshold (integer from 1 to 255)
-     Program ended with exit code: 64
- */
+     */
 
     override init() {
 
         super.init()
 
         let inputFile = StringOption(shortFlag: "i", longFlag: "input-file", required: true,
-                                            helpMessage: "The media file url or path")
+                                     helpMessage: "The media file url or path")
         
         let outputFile = StringOption(shortFlag: "o", longFlag: "output-file", required: true,
-                                        helpMessage: "The Out put file path ")
+                                      helpMessage: "The Out put file path ")
         
         let startsAt = DoubleOption(shortFlag: "s", longFlag: "starts", required: false,
                                     helpMessage: "The optional starting time stamp in seconds (double)")
@@ -65,22 +64,27 @@ class DetectShotsCommand: CommandBase {
                 let starts = startsAt.value ?? 0
                 let endsTime:CMTime = endsAt.value?.toCMTime() ?? Double.infinity.toCMTime()
                 let startTime:CMTime = starts.toCMTime()
-                do{
-                    self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime, fps: 24, origin:0)
-                    if let threshold = threshold.value{
-                        if threshold > 0 && threshold <= 255{
-                            self.detector?.differenceThreshold = threshold
-                        }else{
-                            print("Ignoring threshold option \(threshold), its value should be > 0 and <= 255")
+                VideoMetadataExtractor.extractMetadataFromMovieAtURL(movieURL, success: { (origin, fps, duration, width:Float, height:Float,url:URL) in
+                    do{
+                        self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime, fps: fps, origin: origin ?? 0 )
+                        if let threshold = threshold.value{
+                            if threshold > 0 && threshold <= 255{
+                                self.detector?.differenceThreshold = threshold
+                            }else{
+                                print("Ignoring threshold option \(threshold), its value should be > 0 and <= 255")
+                            }
                         }
+                        NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
+                            print("The END")
+                            exit(EX_OK)
+                        })
+                        self.detector?.start()
+                    }catch{
+                        print("Error:\(error)")
+                        exit(EX__BASE)
                     }
-                    NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
-                        print("The END")
-                        exit(EX_OK)
-                    })
-                    self.detector?.start()
-                }catch{
-                    print("Error:\(error)")
+                }) { (message, url) in
+                    print("\(url) \(message)")
                     exit(EX__BASE)
                 }
             }else{

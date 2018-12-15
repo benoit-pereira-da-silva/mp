@@ -26,7 +26,6 @@
      The optional ends time stamp in seconds (double)
      -t, --threshold:
      The optional detection threshold (integer from 1 to 255)
-     Program ended with exit code: 64
 ```
 
 
