@@ -14,7 +14,7 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 
 1. Move to the `mp/` folder.
 2. Build the release :  `cd `
-3. Copy the executable to the bin path: `cp -f .build/release/mp  /usr/local/bin/`
+3. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`
 
 
 # Usage
