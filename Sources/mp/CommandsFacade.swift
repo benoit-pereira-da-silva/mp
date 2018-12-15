@@ -20,6 +20,7 @@ public struct CommandsFacade {
     
     public func actOnArguments() {
 
+        let _ = getElapsedTime()
         switch firstArgumentAfterExecutablePath {
         case nil:
             print(self._noArgMessage())

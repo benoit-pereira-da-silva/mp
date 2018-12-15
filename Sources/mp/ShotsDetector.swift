@@ -23,8 +23,9 @@ enum ShotsDetectorError:Error {
     case movieIsNotReadable
 }
 
-fileprivate struct Shot{
-    let time:CMTime
+public struct Shot : Codable{
+    let time:Double
+    let timeCode:String
     let detectionValue:Int
 }
 
@@ -65,13 +66,13 @@ class ShotsDetector{
 
     // Those shots are not registred to the document.
     // The timestamps are using absolute time.
-    fileprivate var _shots = [Shot]()
+    var shots = [Shot]()
     fileprivate var _cachedBunch = [TimedImage]()
     fileprivate var _resume = true
     fileprivate var _highestTime =  CMTime.zero
     fileprivate var _imageGenerator :AVAssetImageGenerator
 
-    var progress:Progress = Progress(totalUnitCount: 0)
+    var progress:Progress
 
 
     /// The constructor launches the extraction process.
@@ -105,8 +106,7 @@ class ShotsDetector{
         self._imageGenerator.requestedTimeToleranceBefore = CMTime.zero
         self.frameDuration = (1 / self.fps).toCMTime()
         self.totalNumber = Int64((self.endTime - self.startTime).seconds * fps)
-        self.progress.totalUnitCount = self.totalNumber
-        self.progress.totalUnitCount = 0
+        self.progress = Progress(totalUnitCount: self.totalNumber)
     }
     
     func start(){
@@ -179,12 +179,6 @@ class ShotsDetector{
             self._analyzeCachedTimedImages()
             self._nextBunch()
         }
-
-        self.progress.totalUnitCount = 1
-        self.progress.completedUnitCount += 1
-        let d = NSLocalizedString("Number of detected Shots: ", comment: "Number of detected Shots: ")
-        let message = "\(d)\((self._shots.count)) | \(self.progress.completedUnitCount) / \( self.progress.totalUnitCount) \(self.progress.completedUnitCount * 100 / self.progress.totalUnitCount )%"
-        print(message)
     }
 
     // We analyze all the stored Images
@@ -208,7 +202,9 @@ class ShotsDetector{
                         shotsCandidates.append(current)
                     }
                 }
+                self.progress.completedUnitCount += 1
             }
+            let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
 
             guard shotsCandidates.count > 0 else{
                 return
@@ -216,16 +212,25 @@ class ShotsDetector{
 
             // 2# Respect minDurationBetweenTwoShotsInSeconds
             var lastQualifiedCandidate:TimedImage?
+
             for timedImage in shotsCandidates{
                 if let referentCandidate = lastQualifiedCandidate{
-                    if (timedImage.keyTime - referentCandidate.keyTime).seconds < self.minDurationBetweenTwoShotsInSeconds{
-                        print("Skipping \(timedImage.keyTime.timeCodeComponents(self.fps))")
+                    let distance:Double = (timedImage.keyTime - referentCandidate.keyTime).seconds
+                    if distance < self.minDurationBetweenTwoShotsInSeconds{
+                        print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true))")
                         continue // Do not create the shot
                     }
                 }
                 lastQualifiedCandidate = timedImage
-                let shot:Shot = Shot(time:  timedImage.keyTime,detectionValue: timedImage.difference)
-                self._shots.append(shot)
+                let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true) , detectionValue: timedImage.difference)
+                self.shots.append(shot)
+                let elapsedTime:Double = getElapsedTime()
+
+                print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
+            }
+            if lastQualifiedCandidate == nil{
+                  let elapsedTime:Double = getElapsedTime()
+                  print("Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
             }
         }
     }

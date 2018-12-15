@@ -81,7 +81,14 @@ class DetectShotsCommand: CommandBase {
                             }
                         }
                         NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
-                            print("The END")
+                            if let shots: [Shot] = self.detector?.shots{
+                                doCatchLog({
+                                    let outputURL:URL = URL(fileURLWithPath: outputFile)
+                                    print("Saving the out put file : \(outputURL)")
+                                    try saveCollection(collection: shots, to:outputURL )
+                                })
+                            }
+                            print("This the END")
                             exit(EX_OK)
                         })
                         self.detector?.start()

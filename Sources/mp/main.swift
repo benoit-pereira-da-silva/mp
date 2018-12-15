@@ -11,6 +11,7 @@ import Foundation
 let facade = CommandsFacade()
 facade.actOnArguments()
 
+
 var holdOn = true
 let runLoop = RunLoop.current
 while (holdOn && runLoop.run(mode: RunLoop.Mode.default, before: NSDate.distantFuture) ) {}

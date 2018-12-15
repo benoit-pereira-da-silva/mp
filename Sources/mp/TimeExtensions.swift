@@ -37,6 +37,25 @@ extension Double{
         let format = "%.0\(nbOfDigit)f"
         return String(format:format,self)
     }
+
+
+
+    public var stringMMSS: String {
+        get {
+            if self >= 3600 {
+                let hours: Int = Int(Int(self) / 3600)
+                let minutes: Int = (Int(self) - 3600 * hours) / 60
+                let seconds: Int = Int(self) - 3600 * hours - 60 * minutes
+                return String(format: "%02d:%02d:%02d", arguments: [hours, minutes, seconds])
+            }
+
+            let minutes: Int = Int(Int(self) / 60)
+            let seconds: Int = Int(self) - 60 * minutes
+            return String(format: "%02d:%02d", arguments: [minutes, seconds])
+        }
+    }
+
+
     
 }
 
