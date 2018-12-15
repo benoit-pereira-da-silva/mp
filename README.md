@@ -6,7 +6,7 @@
 
 1. Move to the `mp/` folder.
 2. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
-3. Copy to the bin path: `cp -f .build/release/mp  /usr/local/bin/`
+3. Copy the executable to the bin path: `cp -f .build/release/mp  /usr/local/bin/`
 
 
 # Usage
