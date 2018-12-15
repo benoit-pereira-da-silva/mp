@@ -53,13 +53,7 @@ public struct CommandsFacade {
                 "h", "help",
                 "v","version",
                 "echo",
-                "extract","extract-document",
-                "reveal",
-                "export-alignements",
-                "wsd","watson-speaker-diarization",
-                "detect-shots",
-                "detect-main-subject",
-                "pyannote-import-mdtm"
+                "detect-shots"
             ]
             let bestCandidate = self.bestCandidate(string: firstArgumentAfterExecutablePath, reference: reference)
             print("Hey ...\"\(self.executableName) \(firstArgumentAfterExecutablePath)\" is unexpected!")
@@ -78,12 +72,11 @@ public struct CommandsFacade {
         s += "\n\(self.executableName) version"
         s += "\n\(self.executableName) echo <args>"
         s += "\n"
-        s += "\nYou can call help for each verb e.g:\t\"\(self.executableName) extract help\""
+        s += "\nYou can call help for each verb e.g:\t\"\(self.executableName) detect-shots help\""
         s += "\n"
         s += "\nAvailable verbs:"
         s += "\n"
-        s += "\n\(self.executableName) detect-shots -f <ydb path> -k <bkey path> -c <components path>"
-        s += "\n\(self.executableName) detect-main-subject -u <a video URI> -m <the file path to the core ml model>  -f <the sampling frequency>"
+        s += "\n\(self.executableName) detect-shots"
         s += "\n"
         return s
     }
