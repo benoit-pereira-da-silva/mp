@@ -10,7 +10,7 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 2. To Generate the xcode project  via SPM move to mp's folder and call: `swift package generate-xcodeproj` 
 3. You can add arguments on launch in xcode by editing the scheme. For example : `detect-shots -i /Users/bpds/Desktop/1.mp4 -o /Users/bpds/Desktop/shots.json` will try to detect the file **1.mp4** automatically after compilation.  
 
-# Install *mp* (built via SPM)
+# How to install *mp*
 
 1. Move to the `mp/` folder.
 2. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
