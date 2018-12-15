@@ -175,7 +175,11 @@ class ShotsDetector{
         self._bunchCountDown -= 1
         // Did we grab all the image
         if self._bunchCountDown == 0{
-            self._analyzeCachedTimedImages()
+            let duration:Double = measure {
+                self._analyzeCachedTimedImages()
+            }
+            print("Bunch analysis. Size: \(self.bunchSize) Duration: \(duration) PerImg: \(duration / Double(self.bunchSize)) s/img")
+            self.progress.completedUnitCount += Int64(self.bunchSize)
             self._nextBunch()
         }
     }
@@ -190,19 +194,29 @@ class ShotsDetector{
 
             // #1- Determinate the shots candidates
             var shotsCandidates = [TimedImage]()
+
+            let operationQueue:OperationQueue = OperationQueue.init()
+            operationQueue.maxConcurrentOperationCount = 8
+            operationQueue.qualityOfService = .userInteractive
+
             for (i,timedImage) in self._cachedBunch.enumerated(){
-                // We don't want to recompute already computed differences
-                if timedImage.difference == -1 && i > 0 {
-                    let previous:TimedImage = self._cachedBunch[i - 1 ]
-                    var current:TimedImage = timedImage
-                    // Proceed to image by image comparison
-                    current.difference = ImagesComparator.measureDifferenceBetween(leftImage: previous.image, rightImage:current.image )
-                    if current.difference  >= self.differenceThreshold{
-                        shotsCandidates.append(current)
+                operationQueue.addOperation {
+                    // We don't want to recompute already computed differences
+                    if timedImage.difference == -1 && i > 0 {
+                        let previous:TimedImage = self._cachedBunch[i - 1 ]
+                        var current:TimedImage = timedImage
+                        // Proceed to image by image comparison
+                        current.difference = ImagesComparator.measureDifferenceBetween(leftImage: previous.image, rightImage:current.image )
+                        if current.difference  >= self.differenceThreshold{
+                            shotsCandidates.append(current)
+                        }
                     }
+                    self.progress.completedUnitCount += 1
                 }
-                self.progress.completedUnitCount += 1
             }
+
+            operationQueue.waitUntilAllOperationsAreFinished()
+
             let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
 
             guard shotsCandidates.count > 0 else{
