@@ -71,6 +71,7 @@ class ShotsDetector{
     
     // The shot detection treshold
     var differenceThreshold:Int = 40
+    var cumulatedDifferences:Int = 0 // used to compute average difference
     var minDurationBetweenTwoShotsInSeconds:Double = 1
     
     // Those shots are not registred to the document.
@@ -153,7 +154,7 @@ class ShotsDetector{
             nextTime = nextTime + self.frameDuration
             self._bunchCountDown += 1
         }
-        print("Next Bunch \(initialTime.timeCodeRepresentation(self.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.fps, showImageNumber: true)) \(self._progressString()))")
+        print("Next Bunch \(initialTime.timeCodeRepresentation(self.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.fps, showImageNumber: true)) \(self._progressString())")
         // Let's generate CGImages
         self._imageGenerator.generateCGImagesAsynchronously(forTimes:timesAsValues, completionHandler: { (requestedTime, image, actualTime, generatorResult, error) in
             if let confirmedImage = image{
@@ -214,10 +215,9 @@ class ShotsDetector{
                     var current:TimedImage = timedImage
                     // Proceed to image by image comparison
                     current.difference = ImagesComparator.measureDifferenceBetween(leftImage: previous.image, rightImage:current.image )
+                    self.cumulatedDifferences += current.difference
                     if current.difference  >= self.differenceThreshold{
-                        syncOnMain {
-                            shotsCandidates.append(current)
-                        }
+                        shotsCandidates.append(current)
                     }
                 }
             }
@@ -259,7 +259,8 @@ class ShotsDetector{
         let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
         let elapsedTime:Double = getElapsedTime()
         let imgPerSeconds:Int64 = self.progress.completedUnitCount / (Int64(elapsedTime) > 0 ? Int64(elapsedTime) : Int64.max)
-        return "Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount)  completion: \(percent)%  Speed: \(imgPerSeconds) img/s"
+        let averageDifference:Int = self.cumulatedDifferences / Int(self.progress.completedUnitCount > 0 ? self.progress.completedUnitCount : 1)
+        return "Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount)  completion: \(percent)%  Speed: \(imgPerSeconds) img/s average difference between images: \(averageDifference)"
     }
     
 }

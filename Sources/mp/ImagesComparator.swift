@@ -18,9 +18,9 @@ import Globals
 // https://developer.apple.com/library/content/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html
 class ImagesComparator: NSObject {
     
-    static public var maxWidth:CGFloat = 256
+    static public var maxWidth:CGFloat = 512
     
-    static public var maxHeight:CGFloat = 256
+    static public var maxHeight:CGFloat = 512
 
     // MARK: CoreGraphics
 
