@@ -29,26 +29,36 @@ public struct Shot : Codable{
     let detectionValue:Int
 }
 
-fileprivate struct TimedImage {
-
+struct TimedImage {
+    
     let image:CGImage
     let keyTime:CMTime
     var difference:Int = -1
-
+    
     var hasBeenEvaluated:Bool { return self.difference >= 0 }
-
+    
     init(image: CGImage, keyTime: CMTime) {
         self.image = image
         self.keyTime = keyTime
     }
 }
 
+/*
+ struct Bunch{
+ 
+ // Define the size of a bunch
+ var bunchSize: Int = 0 // Nb of TimedImage
+ // The cache of TimedImage
+ var cached: [TimedImage] = [TimedImage]()
+ var countDown: Int = 0
+ 
+ }
+ */
+
 
 class ShotsDetector{
-
-    // Define the size of a bunch
-    let bunchSize = 64 // TimedImage
-
+    
+    
     let startTime:CMTime
     let endTime:CMTime
     let fps:Double
@@ -56,23 +66,29 @@ class ShotsDetector{
     let movie:AVMovie
     let frameDuration:CMTime
     let totalNumber:Int64
-
+    
+    var maxConcurrentComparison: Int = 8
+    
     // The shot detection treshold
     var differenceThreshold:Int = 40
     var minDurationBetweenTwoShotsInSeconds:Double = 1
-
-
+    
     // Those shots are not registred to the document.
     // The timestamps are using absolute time.
-    var shots = [Shot]()
+    var shots:[Shot] = [Shot]()
+    
+    fileprivate let bunchSize:Int = 64
     fileprivate var _cachedBunch = [TimedImage]()
+    fileprivate var _bunchCountDown = 0
+    
+    //var bunches: [Bunch] = [Bunch]()
+    
+    
     fileprivate var _resume = true
-    fileprivate var _highestTime =  CMTime.zero
-    fileprivate var _imageGenerator :AVAssetImageGenerator
-
+    fileprivate var _imageGenerator : AVAssetImageGenerator
+    
     var progress:Progress
-
-
+    
     /// The constructor launches the extraction process.
     ///
     /// - Parameters:
@@ -82,18 +98,18 @@ class ShotsDetector{
     ///   - fps: the fps
     ///   - origin: the origin
     init(movieURL: URL, startTime: CMTime, endTime: CMTime,fps: Double,origin: Double) throws{
-
+        
         self.movie = AVMovie(url: movieURL)
-
+        
         guard  self.movie.isReadable else{
             throw ShotsDetectorError.movieIsNotReadable
         }
-
+        
         self.startTime = startTime
         self.endTime = endTime
         self.fps = fps
         self.origin = origin
-
+        
         self._imageGenerator=AVAssetImageGenerator(asset: self.movie)
         // If we have more than one video track we need to create a video composition in order to playback the movie correctly.
         if movie.tracks(withMediaType:AVMediaType.video).count > 1{
@@ -108,33 +124,28 @@ class ShotsDetector{
     }
     
     func start(){
-
         self._nextBunch()
     }
-
+    
     func cancel(){
         self._resume = false
     }
-
-    // MARK: - Extraction ( on an Utility queue)
-
-    fileprivate var _bunchCountDown = 0
-
+    
+    // MARK: - Extraction
+    
     fileprivate func _nextBunch(){
         let isFirst = self._cachedBunch.count == 0
         // Let's center the frame
-        var nextTime = isFirst ? self.startTime + (self.frameDuration.seconds / 2).toCMTime()  : self._cachedBunch.last!.keyTime + self.frameDuration
+        let initialTime = isFirst ? self.startTime + (self.frameDuration.seconds / 2).toCMTime()  : self._cachedBunch.last!.keyTime + self.frameDuration
+        var nextTime = initialTime
         guard self._resume && nextTime <= self.endTime else {
             // This is the end
             NotificationCenter.default.post(name: NSNotification.Name.ShotsDetection.didFinish, object: nil, userInfo: ["detector":self])
             return
         }
-
-        // Purge the previous cached bunch
-        while self._cachedBunch.count > self.bunchSize{
-            self._cachedBunch.removeFirst()
-        }
-
+        
+        self._cachedBunch.removeAll()
+        
         var timesAsValues = [NSValue]()
         self._bunchCountDown = 0
         for _ in 0...self.bunchSize{
@@ -142,8 +153,7 @@ class ShotsDetector{
             nextTime = nextTime + self.frameDuration
             self._bunchCountDown += 1
         }
-
-        print("Next Bunch will reach \(nextTime.timeCodeRepresentation(self.fps, showImageNumber: true)) \(self._progressString()))")
+        print("Next Bunch \(initialTime.timeCodeRepresentation(self.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.fps, showImageNumber: true)) \(self._progressString()))")
         // Let's generate CGImages
         self._imageGenerator.generateCGImagesAsynchronously(forTimes:timesAsValues, completionHandler: { (requestedTime, image, actualTime, generatorResult, error) in
             if let confirmedImage = image{
@@ -158,12 +168,9 @@ class ShotsDetector{
                 self._extracted(last, at: nextTime)
             }
         })
-
     }
-
-
-
-
+    
+    
     /// Proceed to evaluation on any extracted image
     ///
     /// - Parameters:
@@ -183,77 +190,77 @@ class ShotsDetector{
             self._nextBunch()
         }
     }
-
+    
     // We analyze all the stored Images
     // The process is currently simple but could involve more complex bunches analysis
     fileprivate func _analyzeCachedTimedImages(){
-
-            self._cachedBunch = self._cachedBunch.sorted { (lt, rt) -> Bool in
-                return lt.keyTime < rt.keyTime
-            }
-
-            // #1- Determinate the shots candidates
-            var shotsCandidates = [TimedImage]()
-
-            let operationQueue:OperationQueue = OperationQueue.init()
-            operationQueue.maxConcurrentOperationCount = 8
-            operationQueue.qualityOfService = .userInteractive
-
-            for (i,timedImage) in self._cachedBunch.enumerated(){
-                operationQueue.addOperation {
-                    // We don't want to recompute already computed differences
-                    if timedImage.difference == -1 && i > 0 {
-                        let previous:TimedImage = self._cachedBunch[i - 1 ]
-                        var current:TimedImage = timedImage
-                        // Proceed to image by image comparison
-                        current.difference = ImagesComparator.measureDifferenceBetween(leftImage: previous.image, rightImage:current.image )
-                        if current.difference  >= self.differenceThreshold{
+        
+        self._cachedBunch = self._cachedBunch.sorted { (lt, rt) -> Bool in
+            return lt.keyTime < rt.keyTime
+        }
+        
+        // #1- Determinate the shots candidates
+        var shotsCandidates = [TimedImage]()
+        
+        let operationQueue:OperationQueue = OperationQueue.init()
+        operationQueue.maxConcurrentOperationCount = self.maxConcurrentComparison
+        operationQueue.qualityOfService = .userInteractive
+        
+        for (i,timedImage) in self._cachedBunch.enumerated(){
+            operationQueue.addOperation {
+                // We don't want to recompute already computed differences
+                if timedImage.difference == -1 && i > 0 {
+                    let previous:TimedImage = self._cachedBunch[i - 1 ]
+                    var current:TimedImage = timedImage
+                    // Proceed to image by image comparison
+                    current.difference = ImagesComparator.measureDifferenceBetween(leftImage: previous.image, rightImage:current.image )
+                    if current.difference  >= self.differenceThreshold{
+                        syncOnMain {
                             shotsCandidates.append(current)
                         }
                     }
-                    self.progress.completedUnitCount += 1
                 }
             }
-
-            operationQueue.waitUntilAllOperationsAreFinished()
-
-            let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
-
-            guard shotsCandidates.count > 0 else{
-                return
-            }
-
-            // 2# Respect minDurationBetweenTwoShotsInSeconds
-            var lastQualifiedCandidate:TimedImage?
-
-            for timedImage in shotsCandidates{
-                if let referentCandidate = lastQualifiedCandidate{
-                    let distance:Double = (timedImage.keyTime - referentCandidate.keyTime).seconds
-                    if distance < self.minDurationBetweenTwoShotsInSeconds{
-                        print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true))")
-                        continue // Do not create the shot
-                    }
+        }
+        operationQueue.waitUntilAllOperationsAreFinished()
+        
+        let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
+        
+        guard shotsCandidates.count > 0 else{
+            return
+        }
+        
+        // 2# Respect minDurationBetweenTwoShotsInSeconds
+        var lastQualifiedCandidate:TimedImage?
+        
+        for timedImage in shotsCandidates{
+            if let referentCandidate = lastQualifiedCandidate{
+                let distance:Double = (timedImage.keyTime - referentCandidate.keyTime).seconds
+                if distance < self.minDurationBetweenTwoShotsInSeconds{
+                    print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true))")
+                    continue // Do not create the shot
                 }
-                lastQualifiedCandidate = timedImage
-                let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true) , detectionValue: timedImage.difference)
-                self.shots.append(shot)
-                let elapsedTime:Double = getElapsedTime()
-
-                print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
             }
-            if lastQualifiedCandidate == nil{
-                print(self._progressString())
-            }
-
+            lastQualifiedCandidate = timedImage
+            let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true) , detectionValue: timedImage.difference)
+            self.shots.append(shot)
+            let elapsedTime:Double = getElapsedTime()
+            
+            print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
+        }
+        if lastQualifiedCandidate == nil{
+            print(self._progressString())
+        }
+        
     }
-
-
+    
+    
     fileprivate func _progressString()->String{
         let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
         let elapsedTime:Double = getElapsedTime()
         let imgPerSeconds:Int64 = self.progress.completedUnitCount / (Int64(elapsedTime) > 0 ? Int64(elapsedTime) : Int64.max)
         return "Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount)  completion: \(percent)%  Speed: \(imgPerSeconds) img/s"
     }
-
+    
 }
 
