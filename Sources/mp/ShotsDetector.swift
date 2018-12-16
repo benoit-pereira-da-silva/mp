@@ -11,6 +11,7 @@ import Globals
 import AppKit
 import CoreMedia
 import AVFoundation
+import CommandLineKit
 
 public extension Notification.Name {
     public struct ShotsDetection {

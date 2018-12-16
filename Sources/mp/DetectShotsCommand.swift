@@ -34,7 +34,7 @@ class DetectShotsCommand: CommandBase {
      The optional detection threshold (integer from 1 to 255)
      */
 
-    override init() {
+    required init() {
 
         super.init()
 
