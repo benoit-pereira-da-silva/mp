@@ -1,6 +1,6 @@
 //
 //  CommandBase.swift
-//  mp
+//  CommandlineKit
 //
 //  Created by Benoit Pereira da silva on 15/12/2018.
 //
@@ -11,7 +11,6 @@ protocol PrintDelegate {
     func printIfVerbose(_ message: Any)
     func printAlways(_ message: Any)
 }
-
 
 /// Base command implementing common behavior for all commands
 public class CommandBase: PrintDelegate {

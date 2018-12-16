@@ -1,9 +1,8 @@
 //
 //  Double+CMTime.swift
-//  YouDub
+//  mp
 //
-//  Created by Benoit Pereira da silva on 01/06/2017.
-//  Copyright © 2017 Lylo Media Group SA. All rights reserved.
+//  Created by Benoit Pereira da silva on 15/12/2018.
 //
 
 import Foundation
