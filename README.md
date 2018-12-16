@@ -25,19 +25,23 @@ In filmmaking and video production, a shot is a series of frames, that runs for 
 
 
 ```
-     Usage: mp detect-shots [options]
-     -i, --input:
-     The media file URL or path
-     -o, --output:
-     The Out put file path
-     -a, --authorization-token:
-     The optional Authorization bearer token (for media URLs)
-     -s, --starts:
-     The optional starting time stamp in seconds (double)
-     -e, --ends:
-     The optional ends time stamp in seconds (double)
-     -t, --threshold:
-     The optional detection threshold (integer from 1 to 255)
+Usage: mp detect-shots [options]
+  -i, --input:
+      The media file URL or path
+  -o, --output:
+      The optional Out put file path. If not set the result will be printed to the standard output
+  -a, --authorization-token:
+      The optional Authorization bearer token (for media URLs)
+  -s, --starts:
+      The optional starting time stamp in seconds (double)
+  -e, --ends:
+      The optional ends time stamp in seconds (double)
+  -t, --threshold:
+      The optional detection threshold (integer from 1 to 255)
+  -p, --pretty-json:
+      Should the result be pretty encoded (default is false)
+  -v, --verbose:
+      If verbose some progress messages will be displayed in the standard output.
 ```
 
 

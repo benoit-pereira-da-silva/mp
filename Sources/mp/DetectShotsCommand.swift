@@ -42,7 +42,7 @@ class DetectShotsCommand: CommandBase {
                                      helpMessage: "The media file URL or path")
         
         let output = StringOption(shortFlag: "o", longFlag: "output", required: false,
-                                      helpMessage: "The optional Out put file path")
+                                      helpMessage: "The optional Out put file path. If not set the result will be printed to the standard output")
 
         let token = StringOption(shortFlag: "a", longFlag: "authorization-token", required: false,
                                     helpMessage: "The optional Authorization bearer token (for media URLs)")
@@ -60,7 +60,7 @@ class DetectShotsCommand: CommandBase {
                                     helpMessage: "Should the result be pretty encoded (default is false)")
 
         let verbose = BoolOption(shortFlag: "v", longFlag: "verbose", required: false,
-                                      helpMessage: "If verbose some message will be display in standard output.\nElse the json result will be put in the standard output")
+                                      helpMessage: "If verbose some progress messages will be displayed in the standard output.")
         
         self.addOptions(options: input, output, token, startsAt, endsAt, threshold, prettyEncode, verbose)
         if self.parse() {
