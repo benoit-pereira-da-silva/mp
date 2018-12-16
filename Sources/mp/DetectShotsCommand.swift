@@ -74,7 +74,20 @@ class DetectShotsCommand: CommandBase {
                         self.printIfVerbose("Invalid movie URL \(input)")
                         exit(EX__BASE)
                     }
-                    movieURL = url
+                    if let token:String = token.value{
+                        if var components : URLComponents = URLComponents(url: url , resolvingAgainstBaseURL: false) {
+                            let queryItems:Dictionary<String,String> = ["token":token]
+                            components.queryItems = components.queryItems ?? [URLQueryItem]()
+                            for (k,v) in queryItems{
+                                components.queryItems?.append(URLQueryItem(name: k, value: v))
+                            }
+                            movieURL = components.url ?? url
+                        }else{
+                            movieURL = url
+                        }
+                    }else{
+                        movieURL = url
+                    }
                 }
                 self.printIfVerbose("Processing \(movieURL) -> \(output)")
 
