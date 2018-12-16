@@ -8,9 +8,11 @@
 import AppKit
 import Globals
 
+public let CLI_VERSION: String = "1.0.2"
+
 public struct CommandsFacade {
 
-    public let version:String = "1.0.0"
+
 
     static let args = Swift.CommandLine.arguments
     let executableName = NSString(string: args.first!).pathComponents.last!
@@ -29,7 +31,7 @@ public struct CommandsFacade {
             print(self._noArgMessage())
             exit(EX_USAGE)
         case "-version", "--version", "v", "version":
-            print("\n\"\(self.executableName)\" has been created by Benoit Pereira da Silva https://pereira-da-silva.com\n\nCurrent version of \(self.executableName) is: \(self.version)")
+            print("\n\"\(self.executableName)\" has been created by Benoit Pereira da Silva https://pereira-da-silva.com\n\nCurrent version of \(self.executableName) is: \(CLI_VERSION)")
             exit(EX_USAGE)
         case "echo", "--echo":
             print(echo)

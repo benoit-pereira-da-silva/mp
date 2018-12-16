@@ -24,24 +24,24 @@ enum ShotsDetectorError:Error {
 }
 
 public struct ShotsDetectionResult:Codable{
-    let infos:VideoDescriptor
-    let shots:[Shot]
+    let source:VideoSource
+    var shots:[Shot]
+    var stats: ShotsStats
+}
+
+public struct ShotsStats: Codable{
+    let cliVersion:String = CLI_VERSION
+    var averageImageComparisonResult:Int = 0
+    var elapsedTime:Double = 0
+    var elapsedTimeString:String = ""
+    var imgPerSecond:Int = 0
+    init(){}
 }
 
 public struct Shot : Codable{
     let time:Double
     let timeCode:String
     let detectionValue:Int
-}
-
-public struct VideoDescriptor : Codable{
-    let url:URL
-    let fps:Double
-    let width:Double
-    let height:Double
-    let duration:Double
-    let origin:Double
-    let originTimeCode:String
 }
 
 struct TimedImage {
@@ -73,8 +73,6 @@ struct TimedImage {
 
 class ShotsDetector{
 
-    var source:VideoDescriptor
-    
     let startTime: CMTime
     let endTime: CMTime
     let movie: AVMovie
@@ -88,11 +86,12 @@ class ShotsDetector{
     var differenceThreshold:Int = 40
     var cumulatedDifferences:Int = 0 // used to compute average difference
     var minDurationBetweenTwoShotsInSeconds:Double = 1
-    
-    // Those shots are not registred to the document.
-    // The timestamps are using absolute time.
-    var shots:[Shot] = [Shot]()
-    
+
+    var result: ShotsDetectionResult
+    var source: VideoSource { return self.result.source }
+    var shots: [Shot] { return self.result.shots }
+
+
     fileprivate let bunchSize:Int = 64
     fileprivate var _cachedBunch = [TimedImage]()
     fileprivate var _bunchCountDown = 0
@@ -112,11 +111,11 @@ class ShotsDetector{
     ///   - startTime: the startTime
     ///   - endTime: the endTime
 
-    init(source: VideoDescriptor, startTime: CMTime, endTime: CMTime) throws{
+    init(source: VideoSource, startTime: CMTime, endTime: CMTime) throws{
 
-        self.source = source
         self.movie = AVMovie(url: source.url)
-        
+        self.result = ShotsDetectionResult(source: source, shots: [Shot](), stats: ShotsStats())
+
         guard  self.movie.isReadable else{
             throw ShotsDetectorError.movieIsNotReadable
         }
@@ -254,7 +253,7 @@ class ShotsDetector{
             }
             lastQualifiedCandidate = timedImage
             let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true) , detectionValue: timedImage.difference)
-            self.shots.append(shot)
+            self.result.shots.append(shot)
             let elapsedTime:Double = getElapsedTime()
             
             print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
@@ -262,7 +261,6 @@ class ShotsDetector{
         if lastQualifiedCandidate == nil{
             print(self._progressString())
         }
-        
     }
     
     
@@ -270,8 +268,11 @@ class ShotsDetector{
         let percent:Int64 = self.progress.totalUnitCount > 0 ? self.progress.completedUnitCount * 100 / self.progress.totalUnitCount : 0
         let elapsedTime:Double = getElapsedTime()
         let imgPerSeconds:Int64 = self.progress.completedUnitCount / (Int64(elapsedTime) > 0 ? Int64(elapsedTime) : Int64.max)
-        let averageDifference:Int = self.cumulatedDifferences / Int(self.progress.completedUnitCount > 0 ? self.progress.completedUnitCount : 1)
-        return "Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount)  completion: \(percent)%  Speed: \(imgPerSeconds) img/s average difference between images: \(averageDifference)"
+        self.result.stats.averageImageComparisonResult = self.cumulatedDifferences / Int(self.progress.completedUnitCount > 0 ? self.progress.completedUnitCount : 1)
+        self.result.stats.elapsedTime = elapsedTime
+        self.result.stats.imgPerSecond = Int(imgPerSeconds)
+        self.result.stats.elapsedTimeString = elapsedTime.stringMMSS
+        return "Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount)  completion: \(percent)%  Speed: \(imgPerSeconds) img/s average difference between images: \(self.result.stats.averageImageComparisonResult)"
     }
     
 }

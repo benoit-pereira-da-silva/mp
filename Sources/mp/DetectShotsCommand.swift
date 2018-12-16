@@ -18,11 +18,13 @@ class DetectShotsCommand: CommandBase {
     var movie:AVMovie?
 
     /*
-     Usage: mp detect-shots [options]
-     -i, --input-file:
-     The media file url or path
-     -o, --output-file:
+     Usage: mp detect-shots [options]Usage: mp [options]
+     -i, --input:
+     The media file URL or path
+     -o, --output:
      The Out put file path
+     -a, --authorization-token:
+     The optional Authorization bearer token (for media URLs)
      -s, --starts:
      The optional starting time stamp in seconds (double)
      -e, --ends:
@@ -40,7 +42,10 @@ class DetectShotsCommand: CommandBase {
         
         let output = StringOption(shortFlag: "o", longFlag: "output", required: true,
                                       helpMessage: "The Out put file path ")
-        
+
+        let token = StringOption(shortFlag: "a", longFlag: "authorization-token", required: false,
+                                    helpMessage: "The optional Authorization bearer token (for media URLs)")
+
         let startsAt = DoubleOption(shortFlag: "s", longFlag: "starts", required: false,
                                     helpMessage: "The optional starting time stamp in seconds (double)")
         
@@ -50,7 +55,7 @@ class DetectShotsCommand: CommandBase {
         let threshold = IntOption(shortFlag: "t", longFlag: "threshold", required: false,
                                   helpMessage: "The optional detection threshold (integer from 1 to 255)")
         
-        self.addOptions(options: input, output, startsAt, endsAt,threshold)
+        self.addOptions(options: input, output, token, startsAt, endsAt,threshold)
         if self.parse() {
             if let input: String = input.value,
                 let output: String = output.value{
@@ -76,29 +81,43 @@ class DetectShotsCommand: CommandBase {
                     print("Fps: \(fps)")
                     print("Size: \(Int(width))/\(Int(height))")
                     print("Duration: \(duration.stringMMSS)")
+
                     if let origin:Double = origin{
                         print("Origin: \(origin.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
                     }else{
                         print("Origin: \(0.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
                     }
+
                     do{
-                        let desc: VideoDescriptor = VideoDescriptor(url: url, fps: fps, width: Double(width), height: Double(height), duration: duration, origin: origin ?? 0, originTimeCode: duration.stringMMSS)
-                        self.detector = try ShotsDetector.init(source: desc,startTime: startTime, endTime: endsTime ?? duration.toCMTime())
+
+                        let videoSource: VideoSource = VideoSource( url: url,
+                                                            token: token.value,
+                                                            fps: fps,
+                                                            width: Double(width),
+                                                            height: Double(height),
+                                                            duration: duration,
+                                                            origin: origin ?? 0,
+                                                            originTimeCode: (origin ?? 0).stringMMSS)
+
+                        self.detector = try ShotsDetector.init( source: videoSource,
+                                                               startTime: startTime,
+                                                               endTime: endsTime ?? duration.toCMTime())
+
                         if let threshold = threshold.value{
+                            
                             if threshold > 0 && threshold <= 255{
                                 self.detector?.differenceThreshold = threshold
                             }else{
                                 print("Ignoring threshold option \(threshold), its value should be > 0 and <= 255")
                             }
                         }
+
                         NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
-                            if let shots: [Shot] = self.detector?.shots{
-                                let result: ShotsDetectionResult = ShotsDetectionResult(infos:desc, shots:shots)
+                            if let result: ShotsDetectionResult = self.detector?.result{
                                 doCatchLog({
                                     let outputURL:URL = URL(fileURLWithPath: output)
                                     print("Saving the out put file : \(outputURL)")
                                     try save(instance: result, to: outputURL)
-                                    try saveCollection(collection: shots, to:outputURL)
                                 })
                             }
                             print("This the END")

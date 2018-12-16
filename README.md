@@ -1,6 +1,6 @@
 # mp
 
-`mp`is a simple video frame processor command line for macOS.
+`mp`is a simple video media processor command line for macOS. It uses AVFoundation and CoreImage. 
 
 # How to debug and launch from xcode?
 
@@ -17,17 +17,21 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 3. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`
 
 
-# Usage
+# mp detect-shots command
+
+In filmmaking and video production, a shot is a series of frames, that runs for an uninterrupted period of time. `mp detect-shots` detect the shots from a file or an URL and saves the result into a json file 
 
 ` mp detect-shots help`
 
 
 ```
      Usage: mp detect-shots [options]
-     -i, --input-file:
-     The media file url or path
-     -o, --output-file:
+     -i, --input:
+     The media file URL or path
+     -o, --output:
      The Out put file path
+     -a, --authorization-token:
+     The optional Authorization bearer token (for media URLs)
      -s, --starts:
      The optional starting time stamp in seconds (double)
      -e, --ends:
@@ -36,4 +40,102 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
      The optional detection threshold (integer from 1 to 255)
 ```
 
+
+## Samples
+
+### Distant video 
+
+Detect the shots in the second minute of Big buck bunny :
+
+`mp detect-shots -s 60 -e 120 -i https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4 -o ~/Desktop/BigBuckBunny.shots.json`
+
+
+```json
+{
+  "shots": [{
+    "detectionValue": 45,
+    "time": 60,
+    6875,
+    "timeCode": "00:01:00:16"
+  }, {
+    "detectionValue": 71,
+    "time": 63,
+    8125,
+    "timeCode": "00:01:03:19"
+  }, {
+    "detectionValue": 68,
+    "time": 69,
+    4375,
+    "timeCode": "00:01:09:10"
+  }, {
+    "detectionValue": 87,
+    "time": 71,
+    3125,
+    "timeCode": "00:01:11:07"
+  }, {
+    "detectionValue": 63,
+    "time": 73,
+    479166666666671,
+    "timeCode": "00:01:13:11"
+  }, {
+    "detectionValue": 61,
+    "time": 75,
+    5625,
+    "timeCode": "00:01:15:13"
+  }, {
+    "detectionValue": 69,
+    "time": 79,
+    979166666666671,
+    "timeCode": "00:01:19:23"
+  }, {
+    "detectionValue": 69,
+    "time": 89,
+    770833333333329,
+    "timeCode": "00:01:29:18"
+  }, {
+    "detectionValue": 69,
+    "time": 91,
+    4375,
+    "timeCode": "00:01:31:10"
+  }, {
+    "detectionValue": 86,
+    "time": 99,
+    770833333333329,
+    "timeCode": "00:01:39:18"
+  }, {
+    "detectionValue": 67,
+    "time": 103,
+    9375,
+    "timeCode": "00:01:43:22"
+  }, {
+    "detectionValue": 56,
+    "time": 117,
+    97916666666667,
+    "timeCode": "00:01:57:23"
+  }, {
+    "detectionValue": 62,
+    "time": 120,
+    89583333333333,
+    "timeCode": "00:02:00:21"
+  }],
+  "stats": {
+    "elapsedTime": 36,
+    052767038345337,
+    "averageImageComparisonResult": 3,
+    "cliVersion": "1.0.2",
+    "elapsedTimeString": "00:36",
+    "imgPerSecond": 39
+  },
+  "source": {
+    "height": 180,
+    "origin": 0,
+    "originTimeCode": "00:00",
+    "width": 320,
+    "fps": 24,
+    "duration": 596,
+    45899999999995,
+    "url": "https:\/\/download.blender.org\/peach\/bigbuckbunny_movies\/BigBuckBunny_320x180.mp4"
+  }
+}
+```
 
