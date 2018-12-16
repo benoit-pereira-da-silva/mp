@@ -8,7 +8,7 @@
 import AppKit
 import Globals
 
-public let CLI_VERSION: String = "1.0.4"
+public let CLI_VERSION: String = "1.0.5"
 
 public struct CommandsFacade {
 

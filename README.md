@@ -110,11 +110,17 @@ Detect the shots in the second minute of Big buck bunny :
     "timeCode": "00:02:00:21"
   }],
   "stats": {
-    "elapsedTime": 41.064870953559875,
+    "startTimeString": "00:01:00:00",
+    "imgPerSecond": 34,
+    "cliVersion": "1.0.5",
+    "endTime": 120,
+    "elapsedTime": 41.053743958473206,
     "averageImageComparisonResult": 3,
-    "cliVersion": "1.0.4",
-    "elapsedTimeString": "00:41",
-    "imgPerSecond": 34
+    "endTimeString": "00:02:00:00",
+    "frameDuration": 0.041666666666666664,
+    "startTime": 60,
+    "numberOfFrames": 1440,
+    "elapsedTimeString": "00:41"
   },
   "source": {
     "height": 180,
@@ -125,7 +131,6 @@ Detect the shots in the second minute of Big buck bunny :
     "duration": 596.45899999999995,
     "url": "https:\/\/download.blender.org\/peach\/bigbuckbunny_movies\/BigBuckBunny_320x180.mp4"
   }
-}
 }
 ```
 

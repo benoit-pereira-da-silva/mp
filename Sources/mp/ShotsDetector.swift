@@ -30,11 +30,20 @@ public struct ShotsDetectionResult:Codable{
 }
 
 public struct ShotsStats: Codable{
+
     let cliVersion:String = CLI_VERSION
     var averageImageComparisonResult:Int = 0
     var elapsedTime:Double = 0
     var elapsedTimeString:String = ""
     var imgPerSecond:Int = 0
+
+    var startTime: Double = 0
+    var startTimeString:String = ""
+    var endTime: Double = 0
+    var endTimeString:String = ""
+    var frameDuration: Double = 0
+    var numberOfFrames: Int = 0
+
     init(){}
 }
 
@@ -139,7 +148,12 @@ class ShotsDetector{
         
         self.startTime = startTime
         self.endTime = endTime
-        
+
+        self.result.stats.startTime = startTime.seconds
+        self.result.stats.endTime = endTime.seconds
+        self.result.stats.startTimeString = startTime.timeCodeRepresentation(source.fps, showImageNumber:true )
+        self.result.stats.endTimeString = endTime.timeCodeRepresentation(source.fps, showImageNumber:true )
+
         self._imageGenerator=AVAssetImageGenerator(asset: self.movie)
         // If we have more than one video track we need to create a video composition in order to playback the movie correctly.
         if movie.tracks(withMediaType:AVMediaType.video).count > 1{
@@ -152,6 +166,8 @@ class ShotsDetector{
     
     func start(){
         self.progress.totalUnitCount = self.totalNumber
+        self.result.stats.numberOfFrames = Int(self.totalNumber)
+        self.result.stats.frameDuration = self.frameDuration.seconds
         self._nextBunch()
     }
     

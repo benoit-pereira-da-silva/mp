@@ -131,8 +131,12 @@ class DetectShotsCommand: CommandBase {
                                     }
                                     if  let output: String = output.value{
                                         let outputURL:URL = URL(fileURLWithPath: output)
-                                        self.printIfVerbose("Saving the out put file : \(outputURL)")
-                                        try writeData(data, to: outputURL)
+                                        if outputURL.isFileURL{
+                                            self.printIfVerbose("Saving the out put file : \(outputURL)")
+                                            try writeData(data, to: outputURL)
+                                        }else{
+                                            // POST with the bearer token auth if present @todo
+                                        }
                                     }
                                     if !verbose.value || output.value == nil{
                                         if let utf8String:String = String(data: data, encoding: .utf8 ){
