@@ -39,10 +39,10 @@ class DetectShotsCommand: CommandBase {
         super.init()
 
         let input = StringOption(shortFlag: "i", longFlag: "input", required: true,
-                                     helpMessage: "The media file URL or path")
+                                     helpMessage: "The media file URL or path (supports Bearer tokens)")
         
         let output = StringOption(shortFlag: "o", longFlag: "output", required: false,
-                                      helpMessage: "The optional Out put file path. If not set the result will be printed to the standard output")
+                                      helpMessage: "The optional Output file URL or path. If not set the result will be printed to the standard output. In case of URL usage + token it POST the file with the token in an HTTP Authorization Header")
 
         let token = StringOption(shortFlag: "a", longFlag: "authorization-token", required: false,
                                     helpMessage: "The optional Authorization bearer token (for media URLs)")

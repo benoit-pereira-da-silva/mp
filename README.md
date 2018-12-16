@@ -27,9 +27,9 @@ In filmmaking and video production, a shot is a series of frames, that runs for 
 ```
 Usage: mp detect-shots [options]
   -i, --input:
-      The media file URL or path
+      The media file URL or path (supports Bearer tokens)
   -o, --output:
-      The optional Out put file path. If not set the result will be printed to the standard output
+      The optional Output file URL or path. If not set the result will be printed to the standard output. In case of URL usage + token it POST the file with the token in an HTTP Authorization Header
   -a, --authorization-token:
       The optional Authorization bearer token (for media URLs)
   -s, --starts:
