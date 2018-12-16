@@ -15,7 +15,16 @@
         "repositoryURL": "https://github.com/Bartlebys/Globals",
         "state": {
           "branch": null,
-          "revision": "83ed1b57442856a50609574e4e19e695db5040b4",
+          "revision": "41cab44917e943cb37dbfb0f9888da3e528db06f",
+          "version": "1.0.1"
+        }
+      },
+      {
+        "package": "Tolerance",
+        "repositoryURL": "https://github.com/Bartlebys/Tolerance",
+        "state": {
+          "branch": null,
+          "revision": "fb48a293d852dea007a08b20eed469b6edb2bf25",
           "version": "1.0.0"
         }
       }

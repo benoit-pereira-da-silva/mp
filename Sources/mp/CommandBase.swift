@@ -7,33 +7,42 @@
 import Foundation
 import CommandLineKit
 
+protocol PrintDelegate {
+    func printIfVerbose(_ message: Any)
+    func printAlways(_ message: Any)
+}
+
+
 /// Base command implementing common behavior for all commands
-public class CommandBase{
+public class CommandBase: PrintDelegate {
     
     public var isVerbose=true
     
-    private let _cli = CommandLine()
+    private static let _cli = CommandLine()
 
+    init(){
+        CommandBase._cli.usesSubCommands = true
+    }
     
     func addOptions(options: Option...) {
         for o in options {
-            _cli.addOption(o)
+            CommandBase._cli.addOption(o)
         }
     }
 
     func parse() -> Bool {
         do {
-            try _cli.parse()
+            try CommandBase._cli.parse()
             return true
         } catch {
-            _cli.printUsage()
+            CommandBase._cli.printUsage()
             exit(EX_USAGE)
         }
     }
     
-    func printVerbose(string: String) {
+    func printIfVerbose(_ message: Any) {
         if self.isVerbose {
-            self.printVersatile(string: string)
+            self.printAlways(message)
         }
     }
     
@@ -42,8 +51,8 @@ public class CommandBase{
      
      - parameter string: the message
      */
-    func printVersatile(string: String) {
-        print(string)
+    func printAlways(_ message: Any) {
+        print("\(message)")
     }
     
 }

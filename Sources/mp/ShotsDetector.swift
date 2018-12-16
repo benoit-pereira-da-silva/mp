@@ -79,6 +79,8 @@ class ShotsDetector{
     var frameDuration: CMTime { return  (1 / self.source.fps).toCMTime() }
     var totalNumber: Int64 {return Int64((self.endTime - self.startTime).seconds * self.source.fps)}
 
+    var printDelegate:PrintDelegate?
+
     // Concurrency.
     var maxConcurrentComparison: Int = 8
     
@@ -110,6 +112,21 @@ class ShotsDetector{
     ///   - movieURL: the movie url :)
     ///   - startTime: the startTime
     ///   - endTime: the endTime
+
+
+    func printIfVerbose(_ message:String){
+        if let d : PrintDelegate = self.printDelegate{
+            d.printIfVerbose(message)
+        }
+    }
+
+    func printAlways(_ message:String){
+        if let d : PrintDelegate = self.printDelegate{
+            d.printAlways(message)
+        }
+    }
+
+
 
     init(source: VideoSource, startTime: CMTime, endTime: CMTime) throws{
 
@@ -164,7 +181,7 @@ class ShotsDetector{
             nextTime = nextTime + self.frameDuration
             self._bunchCountDown += 1
         }
-        print("Next Bunch \(initialTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)) \(self._progressString())")
+        self.printIfVerbose("Next Bunch \(initialTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)) \(self._progressString())")
         // Let's generate CGImages
         self._imageGenerator.generateCGImagesAsynchronously(forTimes:timesAsValues, completionHandler: { (requestedTime, image, actualTime, generatorResult, error) in
             if let confirmedImage = image{
@@ -174,7 +191,7 @@ class ShotsDetector{
                 }
             }
             // There is a problem
-            print("ERROR: \(String(describing: error))")
+            self.printIfVerbose("ERROR: \(String(describing: error))")
             if let last = self._cachedBunch.last?.image{
                 self._extracted(last, at: nextTime)
             }
@@ -196,7 +213,7 @@ class ShotsDetector{
             let duration:Double = measure {
                 self._analyzeCachedTimedImages()
             }
-            print("Bunch analysis. Size: \(self.bunchSize) Duration: \(duration) PerImg: \(duration / Double(self.bunchSize)) s/img")
+            self.printIfVerbose("Bunch analysis. Size: \(self.bunchSize) Duration: \(duration) PerImg: \(duration / Double(self.bunchSize)) s/img")
             self.progress.completedUnitCount += Int64(self.bunchSize)
             self._nextBunch()
         }
@@ -247,7 +264,7 @@ class ShotsDetector{
             if let referentCandidate = lastQualifiedCandidate{
                 let distance:Double = (timedImage.keyTime - referentCandidate.keyTime).seconds
                 if distance < self.minDurationBetweenTwoShotsInSeconds{
-                    print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))")
+                    self.printIfVerbose("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))")
                     continue // Do not create the shot
                 }
             }
@@ -256,10 +273,10 @@ class ShotsDetector{
             self.result.shots.append(shot)
             let elapsedTime:Double = getElapsedTime()
             
-            print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
+            self.printIfVerbose("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
         }
         if lastQualifiedCandidate == nil{
-            print(self._progressString())
+            self.printIfVerbose(self._progressString())
         }
     }
     

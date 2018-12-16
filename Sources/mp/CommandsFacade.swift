@@ -8,7 +8,7 @@
 import AppKit
 import Globals
 
-public let CLI_VERSION: String = "1.0.2"
+public let CLI_VERSION: String = "1.0.4"
 
 public struct CommandsFacade {
 
@@ -21,7 +21,6 @@ public struct CommandsFacade {
     let echo: String = args.joined(separator: " ")
     
     public func actOnArguments() {
-
         let _ = getElapsedTime()
         switch firstArgumentAfterExecutablePath {
         case nil:
@@ -31,7 +30,7 @@ public struct CommandsFacade {
             print(self._noArgMessage())
             exit(EX_USAGE)
         case "-version", "--version", "v", "version":
-            print("\n\"\(self.executableName)\" has been created by Benoit Pereira da Silva https://pereira-da-silva.com\n\nCurrent version of \(self.executableName) is: \(CLI_VERSION)")
+            print("\(CLI_VERSION)")
             exit(EX_USAGE)
         case "echo", "--echo":
             print(echo)

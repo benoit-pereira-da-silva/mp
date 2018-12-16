@@ -10,6 +10,7 @@ import AVKit
 import Globals
 import CoreMedia
 import CommandLineKit
+import Tolerance
 
 
 class DetectShotsCommand: CommandBase {
@@ -40,8 +41,8 @@ class DetectShotsCommand: CommandBase {
         let input = StringOption(shortFlag: "i", longFlag: "input", required: true,
                                      helpMessage: "The media file URL or path")
         
-        let output = StringOption(shortFlag: "o", longFlag: "output", required: true,
-                                      helpMessage: "The Out put file path ")
+        let output = StringOption(shortFlag: "o", longFlag: "output", required: false,
+                                      helpMessage: "The optional Out put file path")
 
         let token = StringOption(shortFlag: "a", longFlag: "authorization-token", required: false,
                                     helpMessage: "The optional Authorization bearer token (for media URLs)")
@@ -54,38 +55,43 @@ class DetectShotsCommand: CommandBase {
         
         let threshold = IntOption(shortFlag: "t", longFlag: "threshold", required: false,
                                   helpMessage: "The optional detection threshold (integer from 1 to 255)")
-        
-        self.addOptions(options: input, output, token, startsAt, endsAt,threshold)
-        if self.parse() {
-            if let input: String = input.value,
-                let output: String = output.value{
 
+        let prettyEncode = BoolOption(shortFlag: "p", longFlag: "pretty-json", required: false,
+                                    helpMessage: "Should the result be pretty encoded (default is false)")
+
+        let verbose = BoolOption(shortFlag: "v", longFlag: "verbose", required: false,
+                                      helpMessage: "If verbose some message will be display in standard output.\nElse the json result will be put in the standard output")
+        
+        self.addOptions(options: input, output, token, startsAt, endsAt, threshold, prettyEncode, verbose)
+        if self.parse() {
+            self.isVerbose  = verbose.value
+            if let input: String = input.value{
                 let movieURL:URL
                 if FileManager.default.fileExists(atPath: input){
                     movieURL = URL(fileURLWithPath: input)
                 }else{
                     guard let url:URL = URL(string: input) else{
-                        print("Invalid movie URL \(input)")
+                        self.printIfVerbose("Invalid movie URL \(input)")
                         exit(EX__BASE)
                     }
                     movieURL = url
                 }
-                print("Processing \(movieURL) -> \(output)")
+                self.printIfVerbose("Processing \(movieURL) -> \(output)")
 
                 let starts = startsAt.value ?? 0
                 let endsTime:CMTime? = endsAt.value?.toCMTime()
                 let startTime:CMTime = starts.toCMTime()
                 VideoMetadataExtractor.extractMetadataFromMovieAtURL(movieURL, success: { (origin, fps, duration, width:Float, height:Float,url:URL) in
 
-                    print("Processing video: \(url) ")
-                    print("Fps: \(fps)")
-                    print("Size: \(Int(width))/\(Int(height))")
-                    print("Duration: \(duration.stringMMSS)")
+                    self.printIfVerbose("Processing video: \(url) ")
+                    self.printIfVerbose("Fps: \(fps)")
+                    self.printIfVerbose("Size: \(Int(width))/\(Int(height))")
+                    self.printIfVerbose("Duration: \(duration.stringMMSS)")
 
                     if let origin:Double = origin{
-                        print("Origin: \(origin.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
+                        self.printIfVerbose("Origin: \(origin.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
                     }else{
-                        print("Origin: \(0.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
+                        self.printIfVerbose("Origin: \(0.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
                     }
 
                     do{
@@ -102,38 +108,53 @@ class DetectShotsCommand: CommandBase {
                         self.detector = try ShotsDetector.init( source: videoSource,
                                                                startTime: startTime,
                                                                endTime: endsTime ?? duration.toCMTime())
+                        self.detector?.printDelegate = self
 
                         if let threshold = threshold.value{
                             
                             if threshold > 0 && threshold <= 255{
                                 self.detector?.differenceThreshold = threshold
                             }else{
-                                print("Ignoring threshold option \(threshold), its value should be > 0 and <= 255")
+                                self.printIfVerbose("Ignoring threshold option \(threshold), its value should be > 0 and <= 255")
                             }
                         }
 
                         NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
                             if let result: ShotsDetectionResult = self.detector?.result{
                                 doCatchLog({
-                                    let outputURL:URL = URL(fileURLWithPath: output)
-                                    print("Saving the out put file : \(outputURL)")
-                                    try save(instance: result, to: outputURL)
+                                    setlocale(LC_ALL,"en_US") // To fix a bug in Swift JSON Apple Radar #36107307
+                                    let data:Data
+                                    if prettyEncode.value{
+                                        data = try JSON.prettyEncoder.encode(result)
+                                    }else{
+                                        data = try JSON.encoder.encode(result)
+                                    }
+                                    if  let output: String = output.value{
+                                        let outputURL:URL = URL(fileURLWithPath: output)
+                                        self.printIfVerbose("Saving the out put file : \(outputURL)")
+                                        try writeData(data, to: outputURL)
+                                    }
+                                    if !verbose.value || output.value == nil{
+                                        if let utf8String:String = String(data: data, encoding: .utf8 ){
+                                            self.printAlways(utf8String)
+                                        }
+                                    }
                                 })
                             }
-                            print("This the END")
+                            self.printIfVerbose("This the END")
                             exit(EX_OK)
                         })
                         self.detector?.start()
                     }catch{
-                        print("Error:\(error)")
+                        self.printIfVerbose("Error:\(error)")
                         exit(EX__BASE)
                     }
                 }) { (message, url) in
-                    print("\(url) \(message)")
+                    self.printIfVerbose("\(url) \(message)")
                     exit(EX__BASE)
                 }
             }else{
-                print("Invalid")
+                self.printIfVerbose("Invalid")
                 exit(EX__BASE)
             }
         }

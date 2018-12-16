@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 // Instanciate the facade
 let facade = CommandsFacade()
 facade.actOnArguments()
