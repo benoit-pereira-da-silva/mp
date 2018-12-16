@@ -35,10 +35,10 @@ class DetectShotsCommand: CommandBase {
 
         super.init()
 
-        let inputFile = StringOption(shortFlag: "i", longFlag: "input-file", required: true,
-                                     helpMessage: "The media file url or path")
+        let input = StringOption(shortFlag: "i", longFlag: "input", required: true,
+                                     helpMessage: "The media file URL or path")
         
-        let outputFile = StringOption(shortFlag: "o", longFlag: "output-file", required: true,
+        let output = StringOption(shortFlag: "o", longFlag: "output", required: true,
                                       helpMessage: "The Out put file path ")
         
         let startsAt = DoubleOption(shortFlag: "s", longFlag: "starts", required: false,
@@ -50,22 +50,22 @@ class DetectShotsCommand: CommandBase {
         let threshold = IntOption(shortFlag: "t", longFlag: "threshold", required: false,
                                   helpMessage: "The optional detection threshold (integer from 1 to 255)")
         
-        self.addOptions(options: inputFile, outputFile, startsAt, endsAt,threshold)
+        self.addOptions(options: input, output, startsAt, endsAt,threshold)
         if self.parse() {
-            if let inputFile: String = inputFile.value,
-                let outputFile: String = outputFile.value{
+            if let input: String = input.value,
+                let output: String = output.value{
 
                 let movieURL:URL
-                if FileManager.default.fileExists(atPath: inputFile){
-                    movieURL = URL(fileURLWithPath: inputFile)
+                if FileManager.default.fileExists(atPath: input){
+                    movieURL = URL(fileURLWithPath: input)
                 }else{
-                    guard let url:URL = URL(string: inputFile) else{
-                        print("Invalid movie URL \(inputFile)")
+                    guard let url:URL = URL(string: input) else{
+                        print("Invalid movie URL \(input)")
                         exit(EX__BASE)
                     }
                     movieURL = url
                 }
-                print("Processing \(movieURL) -> \(outputFile)")
+                print("Processing \(movieURL) -> \(output)")
 
                 let starts = startsAt.value ?? 0
                 let endsTime:CMTime? = endsAt.value?.toCMTime()
@@ -82,7 +82,8 @@ class DetectShotsCommand: CommandBase {
                         print("Origin: \(0.toCMTime().timeCodeRepresentation(fps, showImageNumber: true))")
                     }
                     do{
-                        self.detector = try ShotsDetector.init(movieURL: movieURL, startTime: startTime, endTime: endsTime ?? duration.toCMTime(), fps: fps, origin: origin ?? 0 )
+                        let desc: VideoDescriptor = VideoDescriptor(url: url, fps: fps, width: Double(width), height: Double(height), duration: duration, origin: origin ?? 0, originTimeCode: duration.stringMMSS)
+                        self.detector = try ShotsDetector.init(source: desc,startTime: startTime, endTime: endsTime ?? duration.toCMTime())
                         if let threshold = threshold.value{
                             if threshold > 0 && threshold <= 255{
                                 self.detector?.differenceThreshold = threshold
@@ -92,10 +93,12 @@ class DetectShotsCommand: CommandBase {
                         }
                         NotificationCenter.default.addObserver(forName: NSNotification.Name.ShotsDetection.didFinish, object:nil, queue:nil, using: { (notification) in
                             if let shots: [Shot] = self.detector?.shots{
+                                let result: ShotsDetectionResult = ShotsDetectionResult(infos:desc, shots:shots)
                                 doCatchLog({
-                                    let outputURL:URL = URL(fileURLWithPath: outputFile)
+                                    let outputURL:URL = URL(fileURLWithPath: output)
                                     print("Saving the out put file : \(outputURL)")
-                                    try saveCollection(collection: shots, to:outputURL )
+                                    try save(instance: result, to: outputURL)
+                                    try saveCollection(collection: shots, to:outputURL)
                                 })
                             }
                             print("This the END")

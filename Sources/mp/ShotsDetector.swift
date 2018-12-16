@@ -23,10 +23,25 @@ enum ShotsDetectorError:Error {
     case movieIsNotReadable
 }
 
+public struct ShotsDetectionResult:Codable{
+    let infos:VideoDescriptor
+    let shots:[Shot]
+}
+
 public struct Shot : Codable{
     let time:Double
     let timeCode:String
     let detectionValue:Int
+}
+
+public struct VideoDescriptor : Codable{
+    let url:URL
+    let fps:Double
+    let width:Double
+    let height:Double
+    let duration:Double
+    let origin:Double
+    let originTimeCode:String
 }
 
 struct TimedImage {
@@ -57,16 +72,16 @@ struct TimedImage {
 
 
 class ShotsDetector{
+
+    var source:VideoDescriptor
     
-    
-    let startTime:CMTime
-    let endTime:CMTime
-    let fps:Double
-    let origin:Double
-    let movie:AVMovie
-    let frameDuration:CMTime
-    let totalNumber:Int64
-    
+    let startTime: CMTime
+    let endTime: CMTime
+    let movie: AVMovie
+    var frameDuration: CMTime { return  (1 / self.source.fps).toCMTime() }
+    var totalNumber: Int64 {return Int64((self.endTime - self.startTime).seconds * self.source.fps)}
+
+    // Concurrency.
     var maxConcurrentComparison: Int = 8
     
     // The shot detection treshold
@@ -88,7 +103,7 @@ class ShotsDetector{
     fileprivate var _resume = true
     fileprivate var _imageGenerator : AVAssetImageGenerator
     
-    var progress:Progress
+    var progress: Progress = Progress(totalUnitCount:0)
     
     /// The constructor launches the extraction process.
     ///
@@ -96,11 +111,11 @@ class ShotsDetector{
     ///   - movieURL: the movie url :)
     ///   - startTime: the startTime
     ///   - endTime: the endTime
-    ///   - fps: the fps
-    ///   - origin: the origin
-    init(movieURL: URL, startTime: CMTime, endTime: CMTime,fps: Double,origin: Double) throws{
-        
-        self.movie = AVMovie(url: movieURL)
+
+    init(source: VideoDescriptor, startTime: CMTime, endTime: CMTime) throws{
+
+        self.source = source
+        self.movie = AVMovie(url: source.url)
         
         guard  self.movie.isReadable else{
             throw ShotsDetectorError.movieIsNotReadable
@@ -108,8 +123,6 @@ class ShotsDetector{
         
         self.startTime = startTime
         self.endTime = endTime
-        self.fps = fps
-        self.origin = origin
         
         self._imageGenerator=AVAssetImageGenerator(asset: self.movie)
         // If we have more than one video track we need to create a video composition in order to playback the movie correctly.
@@ -119,12 +132,10 @@ class ShotsDetector{
         // We need the maximun precision
         self._imageGenerator.requestedTimeToleranceAfter = CMTime.zero
         self._imageGenerator.requestedTimeToleranceBefore = CMTime.zero
-        self.frameDuration = (1 / self.fps).toCMTime()
-        self.totalNumber = Int64((self.endTime - self.startTime).seconds * fps)
-        self.progress = Progress(totalUnitCount: self.totalNumber)
     }
     
     func start(){
+        self.progress.totalUnitCount = self.totalNumber
         self._nextBunch()
     }
     
@@ -154,7 +165,7 @@ class ShotsDetector{
             nextTime = nextTime + self.frameDuration
             self._bunchCountDown += 1
         }
-        print("Next Bunch \(initialTime.timeCodeRepresentation(self.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.fps, showImageNumber: true)) \(self._progressString())")
+        print("Next Bunch \(initialTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))-\(nextTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)) \(self._progressString())")
         // Let's generate CGImages
         self._imageGenerator.generateCGImagesAsynchronously(forTimes:timesAsValues, completionHandler: { (requestedTime, image, actualTime, generatorResult, error) in
             if let confirmedImage = image{
@@ -237,16 +248,16 @@ class ShotsDetector{
             if let referentCandidate = lastQualifiedCandidate{
                 let distance:Double = (timedImage.keyTime - referentCandidate.keyTime).seconds
                 if distance < self.minDurationBetweenTwoShotsInSeconds{
-                    print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true))")
+                    print("Distance between shots is to small ==\(distance) seconds Skipping \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true))")
                     continue // Do not create the shot
                 }
             }
             lastQualifiedCandidate = timedImage
-            let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true) , detectionValue: timedImage.difference)
+            let shot:Shot = Shot(time: timedImage.keyTime.seconds, timeCode:timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true) , detectionValue: timedImage.difference)
             self.shots.append(shot)
             let elapsedTime:Double = getElapsedTime()
             
-            print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
+            print("Appending shot at \(timedImage.keyTime.timeCodeRepresentation(self.source.fps, showImageNumber: true)). Total shots number: \(self.shots.count) Elapsed time : \(elapsedTime.stringMMSS) for \(self.progress.completedUnitCount)/ \(self.progress.totalUnitCount) -> \(percent)%")
         }
         if lastQualifiedCandidate == nil{
             print(self._progressString())
