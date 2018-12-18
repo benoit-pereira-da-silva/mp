@@ -9,7 +9,7 @@ import AppKit
 import Globals
 import MPLib
 
-public let CLI_VERSION: String = "1.0.6"
+public let CLI_VERSION: String = "1.0.9"
 
 public struct CommandsFacade {
 
@@ -31,13 +31,15 @@ public struct CommandsFacade {
             print(self._noArgMessage())
             exit(EX_USAGE)
         case "-version", "--version", "v", "version":
-            print("\(CLI_VERSION)")
+            print("CLI: \(CLI_VERSION) MPLib:\(MPLib_VERSION)")
             exit(EX_USAGE)
         case "echo", "--echo":
             print(echo)
             exit(EX_USAGE)
         case "detect-shots":
             let _ = DetectShotsCommand()
+        case "services":
+            let _ = ServicesCommand()
         case "detect-main-subject":
             #if os(OSX)
                 if #available(OSX 10.13, *) {
@@ -56,7 +58,8 @@ public struct CommandsFacade {
                 "h", "help",
                 "v","version",
                 "echo",
-                "detect-shots"
+                "detect-shots",
+                "services"
             ]
             let bestCandidate = self.bestCandidate(string: firstArgumentAfterExecutablePath, reference: reference)
             print("Hey ...\"\(self.executableName) \(firstArgumentAfterExecutablePath)\" is unexpected!")
@@ -80,6 +83,7 @@ public struct CommandsFacade {
         s += "\nAvailable verbs:"
         s += "\n"
         s += "\n\(self.executableName) detect-shots"
+        s += "\n\(self.executableName) services"
         s += "\n"
         return s
     }

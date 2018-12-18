@@ -8,7 +8,9 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 
 1. You need to have the xcode tools installed (xcode 10.1 / Swift 4.2)
 2. To Generate the xcode project  via SPM move to mp's folder and call: `swift package generate-xcodeproj` 
-3. You can add arguments on launch in xcode by editing the scheme. For example : `detect-shots -i /Users/bpds/Desktop/1.mp4 -o /Users/bpds/Desktop/shots.json` will try to detect the file **1.mp4** automatically after compilation.  
+3. Call `mp version` it should display `mp`'s version.
+
+Note: You can add arguments on launch in xcode by editing the scheme. For example : `mp detect-shots -i ~/Desktop/1.mp4 -o ~/Desktop/shots.json` will try to detect the file `~/Desktop/1.mp4` automatically after compilation.  
 
 # How to install *mp*
 
@@ -23,7 +25,6 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 In filmmaking and video production, a shot is a series of frames, that runs for an uninterrupted period of time. `mp detect-shots` detect the shots from a file or an URL and saves the result into a json file 
 
 ` mp detect-shots help`
-
 
 ```
 Usage: mp detect-shots [options]
