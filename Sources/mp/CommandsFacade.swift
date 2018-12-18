@@ -7,6 +7,7 @@
 
 import AppKit
 import Globals
+import MPLib
 
 public let CLI_VERSION: String = "1.0.6"
 

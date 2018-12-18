@@ -12,9 +12,10 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 
 # How to install *mp*
 
-1. Move to the `mp/` folder.
-2. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
-3. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`
+1. Clone `https://github.com/benoit-pereira-da-silva/mplib.git` side by side with `mp`
+2. Move to the `mp/` folder.
+3. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
+4. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`
 
 
 # mp detect-shots command

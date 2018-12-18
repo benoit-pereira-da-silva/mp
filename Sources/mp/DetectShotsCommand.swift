@@ -11,12 +11,12 @@ import Globals
 import CoreMedia
 import CommandLineKit
 import Tolerance
-
+import MPLib
 
 class DetectShotsCommand: CommandBase {
     
-    var detector:ShotsDetector?
-    var movie:AVMovie?
+    var detector: ShotsDetector?
+    var movie: AVMovie?
 
     /*
      Usage: mp detect-shots [options]Usage: mp [options]
