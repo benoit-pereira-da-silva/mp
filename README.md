@@ -1,6 +1,6 @@
 # mp
 
-`mp`is a simple video media processor command line for macOS. It uses AVFoundation and CoreImage. 
+`mp`is a video media processor command line wrapper of `mplib` for macOS.
 
 # How to debug and launch from xcode?
 
@@ -13,7 +13,7 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 # How to install *mp*
 
 1. Move to the `mp/` folder.
-2. Build the release :  `cd `
+2. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
 3. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`
 
 
