@@ -3,7 +3,7 @@
 [![Swift 4](https://img.shields.io/badge/Swift-4.0-orange.svg)](https://swift.org)  [![Platform](https://img.shields.io/badge/platforms-macOS-blue.svg)](https://developer.apple.com/platforms/) 
 
 `mp`is a video media processor command line tools  built on the top of Apple video Foundation. 
-It relies on modular [mplib](https://github.com/benoit-pereira-da-silva/MPLib), [NavetLib](https://github.com/benoit-pereira-da-silva/NavetLib) 
+It relies on:  [mplib](https://github.com/benoit-pereira-da-silva/MPLib), [NavetLib](https://github.com/benoit-pereira-da-silva/NavetLib) 
 
 # How to debug and launch from xcode?
 
