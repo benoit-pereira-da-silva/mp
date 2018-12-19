@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "NavetLib",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/NavetLib",
+        "state": {
+          "branch": null,
+          "revision": "5cdb7914bdfab33768fef32a72788f79bbb6faeb",
+          "version": "1.0.6"
+        }
+      },
+      {
         "package": "Tolerance",
         "repositoryURL": "https://github.com/Bartlebys/Tolerance",
         "state": {

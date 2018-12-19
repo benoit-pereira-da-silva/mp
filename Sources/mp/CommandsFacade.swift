@@ -8,12 +8,11 @@
 import AppKit
 import Globals
 import MPLib
+import NavetLib
 
-public let CLI_VERSION: String = "1.0.9"
+public let CLI_VERSION: String = "1.0.10"
 
 public struct CommandsFacade {
-
-
 
     static let args = Swift.CommandLine.arguments
     let executableName = NSString(string: args.first!).pathComponents.last!
@@ -31,7 +30,7 @@ public struct CommandsFacade {
             print(self._noArgMessage())
             exit(EX_USAGE)
         case "-version", "--version", "v", "version":
-            print("CLI: \(CLI_VERSION) MPLib:\(MPLib_VERSION)")
+            print("CLI: \(CLI_VERSION) MPLib:\(MPLib_VERSION) NavetLib:\(Navet.version)")
             exit(EX_USAGE)
         case "echo", "--echo":
             print(echo)
@@ -40,6 +39,8 @@ public struct CommandsFacade {
             let _ = DetectShotsCommand()
         case "services":
             let _ = ServicesCommand()
+        case "navet":
+            let _ = NavetGenerate()
         case "detect-main-subject":
             #if os(OSX)
                 if #available(OSX 10.13, *) {
@@ -59,7 +60,8 @@ public struct CommandsFacade {
                 "v","version",
                 "echo",
                 "detect-shots",
-                "services"
+                "services",
+                "navet"
             ]
             let bestCandidate = self.bestCandidate(string: firstArgumentAfterExecutablePath, reference: reference)
             print("Hey ...\"\(self.executableName) \(firstArgumentAfterExecutablePath)\" is unexpected!")
@@ -70,20 +72,21 @@ public struct CommandsFacade {
     
     private func _noArgMessage() -> String {
         var s=""
-        s += "\(self.executableName) is a Video Media processor Command Line tool"
+        s += "\(self.executableName) is a video oriented Media Processor Command Line tool"
         s += "\nCreated by Benoit Pereira da Silva https://pereira-da-silva.com"
-        s += "\nvalid calls are S.V.O sentences like:\"\(self.executableName) <verb> [options]\""
+        s += "\nvalid calls are composed of sub commands like:\"\(self.executableName) <subcommand> [options]\""
         s += "\n"
         s += "\n\(self.executableName) help"
         s += "\n\(self.executableName) version"
         s += "\n\(self.executableName) echo <args>"
         s += "\n"
-        s += "\nYou can call help for each verb e.g:\t\"\(self.executableName) detect-shots help\""
+        s += "\nYou can call help for each subcommand e.g:\t\"\(self.executableName) detect-shots help\""
         s += "\n"
-        s += "\nAvailable verbs:"
+        s += "\nAvailable sub command:"
         s += "\n"
-        s += "\n\(self.executableName) detect-shots"
-        s += "\n\(self.executableName) services"
+        s += "\n\(self.executableName) detect-shots -i <input file or url> -o <output file or url> [options]"
+        s += "\n\(self.executableName) services --initialize -o <output file url> -v"
+        s += "\n\(executableName) navet -d <duration> -f <fps> [options]"
         s += "\n"
         return s
     }
