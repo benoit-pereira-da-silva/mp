@@ -13,8 +13,6 @@ Check [Using the Package Manager on swift.org](https://swift.org/getting-started
 2. To Generate the xcode project  via SPM move to mp's folder and call: `swift package generate-xcodeproj` 
 3. Call `mp version` it should display `mp`'s version.
 
-Note: You can add arguments on launch in xcode by editing the scheme. For example : `mp detect-shots -i ~/Desktop/1.mp4 -o ~/Desktop/shots.json` will try to detect the file `~/Desktop/1.mp4` automatically after compilation.  
-
 # How to install *mp*
 
 1. Clone `https://github.com/benoit-pereira-da-silva/mp.git`
@@ -29,18 +27,18 @@ Valid calls are S.V.O sentences like:"mp <sub command> [options]"
 
 - `mp version`: returns the current version of mp
 - `mp help` : explains how to 
-- `mp detect-shots`:  detect the shots from a file or an URL and saves the result into a json file 
-- `mp navet`:  detect the shots from a file or an URL and saves the result into a json file 
+- `mp shots`:  detect the shots from a file or an URL and saves the result into a json file 
+- `mp navet`:  creates video placeholders
 
 
-# `mp detect-shots` command
+# `mp shots` command
 
 In filmmaking and video production, a shot is a series of frames, that runs for an uninterrupted period of time. `mp detect-shots` detect the shots from a file or an URL and saves the result into a json file 
 
-` mp detect-shots help`
+` mp shots help`
 
 ```
-Usage: mp detect-shots [options]
+Usage: mp shots [options]
   -i, --input:
       The media file URL or path (supports Bearer tokens)
   -o, --output:
@@ -66,7 +64,7 @@ Usage: mp detect-shots [options]
 
 Detect the shots in the second minute of Big buck bunny :
 
-`mp detect-shots -v -s 60 -e 120 -i https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4 -o ~/Desktop/BigBuckBunny.shot.json`
+`mp shots -v -s 60 -e 120 -i https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4 -o ~/Desktop/BigBuckBunny.shot.json`
 
 
 ```json
@@ -205,8 +203,6 @@ do
 	done
 done
 ```
-
-
 
 
 # Contact 

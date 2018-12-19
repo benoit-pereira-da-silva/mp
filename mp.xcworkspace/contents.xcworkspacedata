@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "container:mp.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../MPLib/MPLib.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../NavetLib/NavetLib.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../CommandLine/CommandLineKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../Globals/Globals.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../HTTPClient/HTTPClient.xcodeproj">
+   </FileRef>
+</Workspace>
