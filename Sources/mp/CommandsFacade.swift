@@ -35,11 +35,11 @@ public struct CommandsFacade {
         case "echo", "--echo":
             print(echo)
             exit(EX_USAGE)
-        case "shots","detect-shots":
+        case "detect-shots", "shots" :
             let _ = DetectShotsCommand()
         case "services":
             let _ = ServicesCommand()
-        case "navet":
+        case "generate-video","navet":
             let _ = NavetGenerate()
         case "detect-main-subject":
             #if os(OSX)
@@ -59,9 +59,9 @@ public struct CommandsFacade {
                 "h", "help",
                 "v","version",
                 "echo",
-                "shots","detect-shots",
+                "detect-shots","shots",
                 "services",
-                "navet"
+                "generate-video","navet"
             ]
             let bestCandidate = self.bestCandidate(string: firstArgumentAfterExecutablePath, reference: reference)
             print("Hey ...\"\(self.executableName) \(firstArgumentAfterExecutablePath)\" is unexpected!")
@@ -84,9 +84,9 @@ public struct CommandsFacade {
         s += "\n"
         s += "\nAvailable sub command:"
         s += "\n"
-        s += "\n\(self.executableName) shots -i <input file or url> -o <output file or url> [options]"
+        s += "\n\(self.executableName) detect-shots -i <input file or url> -o <output file or url> [options]"
+        s += "\n\(executableName) generate-video -d <duration> -f <fps> [options]"
         s += "\n\(self.executableName) services --initialize -o <output file url> -v"
-        s += "\n\(executableName) navet -d <duration> -f <fps> [options]"
         s += "\n"
         return s
     }
