@@ -17,7 +17,7 @@ Note: You can add arguments on launch in xcode by editing the scheme. For exampl
 
 # How to install *mp*
 
-1. Clone `https://github.com/benoit-pereira-da-silva/mplib.git` side by side with `mp`
+1. Clone `https://github.com/benoit-pereira-da-silva/mp.git`
 2. Move to the `mp/` folder.
 3. Build the release :  `swift build -c release -Xswiftc -static-stdlib`
 4. Copy the executable to the bin path: `cp ./.build/x86_64-apple-macosx10.10/release/mp  /usr/local/bin/`

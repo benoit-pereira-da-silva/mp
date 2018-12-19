@@ -6,10 +6,11 @@ import PackageDescription
 let package = Package(
     name: "mp",
     dependencies: [
-        .package(path:"../MPLib"),
-        .package(url:"https://github.com/Bartlebys/CommandLine", from: "4.0.5"),
-        .package(url:"https://github.com/Bartlebys/Globals", from: "1.0.0"),
-        .package(url:"https://github.com/Bartlebys/Tolerance", from: "1.0.0"),
+        //.package(path:"../MPLib"),
+        .package(url:"https://github.com/benoit-pereira-da-silva/MPLib", from: "1.0.0"),
+        .package(url:"https://github.com/benoit-pereira-da-silva/CommandLine", from: "4.0.5"),
+        .package(url:"https://github.com/benoit-pereira-da-silva/Globals", from: "1.0.0"),
+        .package(url:"https://github.com/benoit-pereira-da-silva/Tolerance", from: "1.0.0"),
         .package(url:"https://github.com/benoit-pereira-da-silva/HTTPClient", from: "1.0.0"),
         .package(url:"https://github.com/benoit-pereira-da-silva/NavetLib", from: "1.0.0"),
     ],
