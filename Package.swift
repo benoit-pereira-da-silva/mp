@@ -11,7 +11,7 @@ fileprivate enum Stage {
 fileprivate struct Configuration{
 
     // Turn to .release before to merge on master
-    static let stage:Stage = .development
+    static let stage:Stage = .release
 
     static var dependencies: [PackageDescription.Package.Dependency]{
         switch self.stage{
