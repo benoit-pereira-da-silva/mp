@@ -3,7 +3,7 @@
     "pins": [
       {
         "package": "CommandLineKit",
-        "repositoryURL": "https://github.com/Bartlebys/CommandLine",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/CommandLine",
         "state": {
           "branch": null,
           "revision": "3eaafd5941e359f025a411e3b5947f96d82d1bc9",
@@ -29,21 +29,12 @@
         }
       },
       {
-        "package": "MPLib",
-        "repositoryURL": "https://github.com/benoit-pereira-da-silva/MPLib",
-        "state": {
-          "branch": null,
-          "revision": "f6a9e901c57a6a2552768a104a9e88e5a3bd9ce7",
-          "version": "1.0.0"
-        }
-      },
-      {
         "package": "NavetLib",
         "repositoryURL": "https://github.com/benoit-pereira-da-silva/NavetLib",
         "state": {
           "branch": null,
-          "revision": "5cdb7914bdfab33768fef32a72788f79bbb6faeb",
-          "version": "1.0.6"
+          "revision": "b6f56dd15b78c723d03909628b4ff254ff1b74fd",
+          "version": "1.0.7"
         }
       },
       {
