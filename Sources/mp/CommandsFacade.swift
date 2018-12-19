@@ -35,7 +35,7 @@ public struct CommandsFacade {
         case "echo", "--echo":
             print(echo)
             exit(EX_USAGE)
-        case "detect-shots":
+        case "shots","detect-shots":
             let _ = DetectShotsCommand()
         case "services":
             let _ = ServicesCommand()
@@ -59,7 +59,7 @@ public struct CommandsFacade {
                 "h", "help",
                 "v","version",
                 "echo",
-                "detect-shots",
+                "shots","detect-shots",
                 "services",
                 "navet"
             ]
@@ -80,11 +80,11 @@ public struct CommandsFacade {
         s += "\n\(self.executableName) version"
         s += "\n\(self.executableName) echo <args>"
         s += "\n"
-        s += "\nYou can call help for each subcommand e.g:\t\"\(self.executableName) detect-shots help\""
+        s += "\nYou can call help for each subcommand e.g:\t\"\(self.executableName) shots help\""
         s += "\n"
         s += "\nAvailable sub command:"
         s += "\n"
-        s += "\n\(self.executableName) detect-shots -i <input file or url> -o <output file or url> [options]"
+        s += "\n\(self.executableName) shots -i <input file or url> -o <output file or url> [options]"
         s += "\n\(self.executableName) services --initialize -o <output file url> -v"
         s += "\n\(executableName) navet -d <duration> -f <fps> [options]"
         s += "\n"
