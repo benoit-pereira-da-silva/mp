@@ -12,8 +12,9 @@ let package = Package(
         .package(url:"https://github.com/benoit-pereira-da-silva/Globals", from: "1.0.0"),
         .package(url:"https://github.com/benoit-pereira-da-silva/Tolerance", from: "1.0.0"),
         .package(url:"https://github.com/benoit-pereira-da-silva/HTTPClient", from: "1.0.0"),
-        //.package(path:"../MPLib"),
-        .package(url:"https://github.com/benoit-pereira-da-silva/MPLib", from: "1.0.0"),
+        .package(path:"../MPLib"),
+        //.package(url:"https://github.com/benoit-pereira-da-silva/MPLib", from: "1.0.0"),
+        //.package(path:"../NavetLib"),
         .package(url:"https://github.com/benoit-pereira-da-silva/NavetLib", from: "1.0.0"),
     ],
     targets: [
