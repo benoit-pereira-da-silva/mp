@@ -29,6 +29,15 @@
         }
       },
       {
+        "package": "MPLib",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/MPLib",
+        "state": {
+          "branch": null,
+          "revision": "f6a9e901c57a6a2552768a104a9e88e5a3bd9ce7",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "NavetLib",
         "repositoryURL": "https://github.com/benoit-pereira-da-silva/NavetLib",
         "state": {
