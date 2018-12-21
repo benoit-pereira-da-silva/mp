@@ -8,6 +8,8 @@ cd ../Globals
 swift package generate-xcodeproj
 cd ../Tolerance
 swift package generate-xcodeproj
+cd ../AsynchronousOperation
+swift package generate-xcodeproj
 cd ../MPLib
 swift package generate-xcodeproj
 cd ../HTTPClient

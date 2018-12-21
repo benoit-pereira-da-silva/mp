@@ -7,17 +7,19 @@ INITIAL_DIR=$(pwd)
 # Generate the xcode project
 swift package generate-xcodeproj
 
-cd ../CommandLine
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/CommandLine
-cd ../Globals
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/Globals
-cd ../Tolerance
+cd ..
+git clone https://github.com/benoit-pereira-da-silva/AsynchronousOperation
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/Tolerance
-cd ../MPLib
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/MPLib
-cd ../HTTPClient
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/HTTPClient
-cd ../NavetLib
+cd ..
 git clone https://github.com/benoit-pereira-da-silva/NavetLib
 
 cd "$INITIAL_DIR"

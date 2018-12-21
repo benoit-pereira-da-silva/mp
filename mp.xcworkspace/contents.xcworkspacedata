@@ -8,9 +8,6 @@
       location = "group:../MPLib/MPLib.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:../NavetLib/NavetLib.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:../CommandLine/CommandLineKit.xcodeproj">
    </FileRef>
    <FileRef
@@ -18,5 +15,11 @@
    </FileRef>
    <FileRef
       location = "group:../HTTPClient/HTTPClient.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../AsynchronousOperation/AsynchronousOperation.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../NavetLib/NavetLib.xcodeproj">
    </FileRef>
 </Workspace>
