@@ -20,12 +20,39 @@
         }
       },
       {
+        "package": "HMAC",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/HMAC",
+        "state": {
+          "branch": null,
+          "revision": "ba880447e36c6953f202ab8f87a13b5a084ff189",
+          "version": "1.0.2"
+        }
+      },
+      {
         "package": "HTTPClient",
         "repositoryURL": "https://github.com/benoit-pereira-da-silva/HTTPClient",
         "state": {
           "branch": null,
           "revision": "dca3e508dff67abbfc94a9c32f97f9209265e53b",
           "version": "1.0.4"
+        }
+      },
+      {
+        "package": "MPLib",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/MPLib",
+        "state": {
+          "branch": null,
+          "revision": "f6a9e901c57a6a2552768a104a9e88e5a3bd9ce7",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "package": "NavetLib",
+        "repositoryURL": "https://github.com/benoit-pereira-da-silva/NavetLib",
+        "state": {
+          "branch": null,
+          "revision": "b6f56dd15b78c723d03909628b4ff254ff1b74fd",
+          "version": "1.0.7"
         }
       },
       {

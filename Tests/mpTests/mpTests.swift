@@ -2,20 +2,19 @@ import XCTest
 import class Foundation.Bundle
 
 final class mpTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
+
+
+    func test_001_greetings_on_launch() throws {
 
         // Some of the APIs that we use below are available in macOS 10.13 and above.
         guard #available(macOS 10.13, *) else {
             return
         }
 
-        let fooBinary = productsDirectory.appendingPathComponent("mp")
+        let mpBinary = productsDirectory.appendingPathComponent("mp")
 
         let process = Process()
-        process.executableURL = fooBinary
+        process.executableURL = mpBinary
 
         let pipe = Pipe()
         process.standardOutput = pipe
@@ -24,10 +23,14 @@ final class mpTests: XCTestCase {
         process.waitUntilExit()
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)
-
-        XCTAssertEqual(output, "Hello, world!\n")
+        if let output = String(data: data, encoding: .utf8){
+            let result:Bool = output.starts(with:"Hey ...")
+            XCTAssert(result)
+        }else{
+            XCTFail("mp should display its greetings.")
+        }
     }
+
 
     /// Returns path to the built products directory.
     var productsDirectory: URL {
@@ -42,6 +45,6 @@ final class mpTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("test_001_greetings_on_launch", test_001_greetings_on_launch),
     ]
 }

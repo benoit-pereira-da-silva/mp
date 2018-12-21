@@ -10,7 +10,7 @@ import Globals
 import MPLib
 import NavetLib
 
-public let CLI_VERSION: String = "1.0.10"
+public let CLI_VERSION: String = "1.0.11"
 
 public struct CommandsFacade {
 
